@@ -38,7 +38,8 @@ router.post('/signup', async (req, res) => {
 router.post('/verify-email', async (req, res) => {
     try {
         // generate otp
-        const otp = "0000";
+        const otp = Math.floor(1000 + Math.random() * 9000).toString();
+
         const { userId } = req.body;
         if (!userId) {
             return res.status(400).json({ message: "userId is required" })

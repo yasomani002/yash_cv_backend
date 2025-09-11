@@ -2,7 +2,6 @@ const express = require('express');
 const connectDB = require('./db/db.js');
 const app = express();
 const router = express.Router()
-const User = require('./models/userModel.js');
 const userRoute = require('./routes/userRoute..js');
 const cookieParser = require("cookie-parser");
 
