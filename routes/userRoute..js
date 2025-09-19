@@ -71,6 +71,8 @@ router.post('/verify-email', async (req, res) => {
 router.post('/verify-otp', async (req, res) => {
     try {
         const { userId, otp } = req.body;
+        let isVerified = false
+
         if (!userId || !otp) {
             return res.status(400).json({ message: "userId and otp is required" })
         }
@@ -83,8 +85,9 @@ router.post('/verify-otp', async (req, res) => {
         }
         userData.isVerified = true;
         userData.otp = "";
+        isVerified = true
         await userData.save();
-        return res.status(200).json({ message: "Email verified successfully" })
+        return res.status(200).json({ message: "Email verified successfully", isVerified })
     } catch (error) {
         console.log(error);
         res.status(500).send('Server Error');
@@ -132,7 +135,7 @@ router.post('/login', async (req, res) => {
 
         userData.isLoggedIn = true;
         await userData.save();
-        res.status(200).json({ msg: 'Login successful', data: userData, token: token });
+        res.status(200).json({ msg: 'Login successful.', data: userData, token: token });
     } catch (error) {
         console.log(error);
         res.status(500).send('Server Error');
@@ -154,7 +157,7 @@ router.get('/profile', async (req, res) => {
         if (!userData) {
             return res.status(400).json({ msg: 'User not found' });
         }
-        res.status(200).json({ msg: 'User profile fetched successfully', data: userData });
+        res.status(200).json({ msg: 'User profile fetched successfully.', data: userData });
     } catch (error) {
         console.log(error);
         res.status(500).send('Server Error');
@@ -172,16 +175,45 @@ router.post('/cv-data', async (req, res) => {
         // Pass full data directly (not wrapped inside { data })
         const cvData = new CvData(data);
 
-
         await cvData.save();
         res.status(200).json({
-            msg: 'Data saved successfully',
+            msg: 'Data saved successfully.',
             data: cvData
         });
 
     } catch (error) {
         console.log(error);
         res.status(500).send('Server Error');
+    }
+})
+
+
+router.put('/update-cv-data/:userId', async (req, res) => {
+    try {
+        const userId = req.params.userId
+        const userData = req.body
+
+        if (!mongoose.Types.ObjectId.isValid(userId)) {
+            return res.status(400).json({ message: 'Invalid user id' })
+        }
+
+        // Update or create CV data by userId
+        const updateUserData = await CvData.findOneAndUpdate(
+            { userId: userId },   // search condition
+            { $set: userData },   // update data
+            { new: true, runValidators: true, upsert: true } // options
+        );
+
+
+        if (!updateUserData) {
+            return res.status(404).json({ message: 'User not found.' })
+        }
+
+        res.json(200).json({ message: " Candidate updated sucessfully.", data: updateUserData })
+
+    } catch (error) {
+        console.log(error)
+        res.status(500).json({ error: "Server error" })
     }
 })
 
@@ -193,7 +225,7 @@ router.get('/cv-data/:id', async (req, res) => {
         if (!cvData) {
             return res.status(404).json({ msg: 'No CV data found for this user' });
         }
-        res.status(200).json({ msg: 'CV data fetched successfully', data: cvData });
+        res.status(200).json({ msg: 'CV data fetched successfully.', data: cvData });
     } catch (error) {
         console.log(error);
         res.status(500).send('Server Error');
@@ -226,7 +258,7 @@ router.post('/logout', async (req, res) => {
             sameSite: "strict",
         });
 
-        return res.status(200).json({ msg: 'Logout successful' });
+        return res.status(200).json({ msg: 'Logout successful.' });
     } catch (error) {
         console.log(error);
         res.status(500).send('Server Error');

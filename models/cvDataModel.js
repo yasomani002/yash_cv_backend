@@ -16,6 +16,7 @@ const sectionSchema = new mongoose.Schema({
 // Main schema (with userId)
 const cvDataSchema = new mongoose.Schema({
   userId: { type: String, required: true },
+  email:{ type: String, required: true},
   sections: { type: [sectionSchema], required: true }
 });
 
