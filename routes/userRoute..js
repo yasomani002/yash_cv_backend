@@ -187,7 +187,6 @@ router.post('/cv-data', async (req, res) => {
     }
 })
 
-
 router.put('/update-cv-data/:userId', async (req, res) => {
     try {
         const userId = req.params.userId
@@ -234,7 +233,7 @@ router.get('/cv-data/:id', async (req, res) => {
 
 router.post('/logout', async (req, res) => {
     try {
-        const { token } = req.cookies;
+        const { token } = req.body;
         if (!token) {
             return res.status(400).json({ msg: 'No token found' });
         }
